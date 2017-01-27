@@ -9,3 +9,10 @@ Below is the flow of the current demo
 * A Hive external table is built on the cleansed file
 * A set of pre-canned queries are provided on Zeppelin. Few of these queries are: Customer single view, Path to purchase, Page abandonment report, Error page report, Gender and age distribution of the visitors
 ![Alt text](images/ClickStream-Reference-Architecture.jpg?raw=true)
+
+Below is how the files are organized:
+* Nifi directory has the nifi template
+* Zeppelin directory has the exported notebook pre saved queries such as path to purchase, page abandonment, etc..
+* sql directory has all the needed sql queries, as well as hive ddl to create needed tables
+* data directory has the needed data. You may be most interested in clickstream-feed-generated.tsv.gz, products.tsv.gz, and users.tsv.gz
+* script directory has a main file generate-clickstream-data.sh that generates the clickstream-feed-generated.tsv.gz file from a raw file. The scripts folder also has two sub directories, one will push the click data to a TCP port for the nifi to consume, and other will have some basic transformation scripts that would convert (mimick the conversion) from raw click data to cleansed click data
