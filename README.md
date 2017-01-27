@@ -8,3 +8,4 @@ Below is the flow of the current demo
 * Once the Nifi lands the click data as a raw data in the HDFS folder, it goes through a series of data transformation and data cleansing
 * A Hive external table is built on the cleansed file
 * A set of pre-canned queries are provided on Zeppelin. Few of these queries are: Customer single view, Path to purchase, Page abandonment report, Error page report, Gender and age distribution of the visitors
+![Alt text](images/ClickStream-Reference-Architecture.jpg?raw=true)
