@@ -1,0 +1,1 @@
+clickstream_id|timestamp|IP address|url|is_purchased?|is_page_errored?|user_session_id|city|state|country
