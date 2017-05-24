@@ -1,0 +1,5 @@
+fs -rmr -R /tmp/clickstream_out;
+register /usr/hdp/current/pig-client/lib/piggybank.jar;
+a = load '/tmp/inbound' using org.apache.pig.piggybank.storage.CSVExcelStorage('\t', 'NO_MULTILINE', 'NOCHANGE', 'SKIP_INPUT_HEADER');
+b = foreach a generate $0 as date, $1 as time, $2 as xedgelocation, $3 as scbytes, $4 as cip, $5 as csmethod, $6 as csHost, $7 as csuristem, $8 as scstatus, $9 as csReferer, $10 as csUserAgent, $11 as csuriquery, $12 as csCookie, $13 as xedgeresulttype, $14 as xedgerequestid, $15 as xhostheader, $16 as csprotocol, $17 as csbytes, $18 as timetaken, $19 as xforwardedfor, $20 as sslprotocol, $21 as sslcipher, $22 as xedgeresponseresulttype, $23 as csprotocolversion, REGEX_EXTRACT($9, '(\\d+)', 1) as groupId, REGEX_EXTRACT($10, '2520\\((\\w+)', 1) as deviceType, REPLACE(REGEX_EXTRACT($11, 'tz=(\\w+%252F\\w+)', 1), '%252F', ' ') as timezone;
+store b into '/tmp/clickstream_out' using org.apache.pig.piggybank.storage.CSVExcelStorage('\t', 'NO_MULTILINE', 'NOCHANGE', 'WRITE_OUTPUT_HEADER');
