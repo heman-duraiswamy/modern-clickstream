@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<workflow-app xmlns="uri:oozie:workflow:0.5" name="clickstream">
-    <start to="create_staging_dir"/>
-    <action name="create_staging_dir">
+<workflow-app xmlns="uri:oozie:workflow:0.5" name="clickstream_wf">
+    <start to="create_preprocess_dir"/>
+    <action name="create_preprocess_dir">
         <fs>
             <mkdir path="${nameNode}/tmp/preprocess"/>
         </fs>
@@ -10,7 +10,7 @@
     </action>
     <action name="move_data_from_inbound">
         <fs>
-            <move source="${nameNode}/tmp/inbound" target="${nameNode}/tmp/preprocess"/>
+            <move source="${nameNode}/tmp/inbound/*" target="${nameNode}/tmp/preprocess"/>
         </fs>
         <ok to="cleanup_script"/>
         <error to="kill"/>
@@ -24,22 +24,6 @@
             </prepare>
             <script>/user/admin/oozie/clickstream/lib/clickstream_cleanup.pig</script>
         </pig>
-        <ok to="create_inbound_dir"/>
-        <error to="kill"/>
-    </action>
-    <action name="create_inbound_dir">
-        <fs>
-            <mkdir path="${nameNode}/tmp/inbound"/>
-        </fs>
-        <ok to="change_inbound_permissions"/>
-        <error to="kill"/>
-    </action>
-    <action name="change_inbound_permissions">
-        <fs>
-            <chmod dir-files="false" path="${nameNode}/tmp/inbound" permissions="777">
-                <recursive/>
-            </chmod>
-        </fs>
         <ok to="move_to_visits_dir"/>
         <error to="kill"/>
     </action>
@@ -52,7 +36,14 @@
     </action>
     <action name="delete_preprocessed">
         <fs>
-            <delete path="${nameNode}/tmp/preprocess/inbound"/>
+            <delete path="${nameNode}/tmp/preprocess"/>
+        </fs>
+        <ok to="create_dummy_file"/>
+        <error to="kill"/>
+    </action>
+    <action name="create_dummy_file">
+        <fs>
+            <touchz path="${nameNode}/tmp/inbound/${wf:id()}"/>
         </fs>
         <ok to="end"/>
         <error to="kill"/>
