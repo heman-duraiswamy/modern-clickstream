@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<workflow-app xmlns="uri:oozie:workflow:0.5" name="clickstream">
+    <start to="create_staging_dir"/>
+    <action name="create_staging_dir">
+        <fs>
+            <mkdir path="${nameNode}/tmp/preprocess"/>
+        </fs>
+        <ok to="move_data_from_inbound"/>
+        <error to="kill"/>
+    </action>
+    <action name="move_data_from_inbound">
+        <fs>
+            <move source="${nameNode}/tmp/inbound" target="${nameNode}/tmp/preprocess"/>
+        </fs>
+        <ok to="cleanup_script"/>
+        <error to="kill"/>
+    </action>
+    <action name="cleanup_script">
+        <pig>
+            <job-tracker>${resourceManager}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <prepare>
+                <delete path="/tmp/postprocess"/>
+            </prepare>
+            <script>/user/admin/oozie/clickstream/lib/clickstream_cleanup.pig</script>
+        </pig>
+        <ok to="create_inbound_dir"/>
+        <error to="kill"/>
+    </action>
+    <action name="create_inbound_dir">
+        <fs>
+            <mkdir path="${nameNode}/tmp/inbound"/>
+        </fs>
+        <ok to="change_inbound_permissions"/>
+        <error to="kill"/>
+    </action>
+    <action name="change_inbound_permissions">
+        <fs>
+            <chmod dir-files="false" path="${nameNode}/tmp/inbound" permissions="777">
+                <recursive/>
+            </chmod>
+        </fs>
+        <ok to="move_to_visits_dir"/>
+        <error to="kill"/>
+    </action>
+    <action name="move_to_visits_dir">
+        <fs>
+            <move source="${nameNode}/tmp/postprocess" target="${nameNode}/tmp/visits/${wf:id()}"/>
+        </fs>
+        <ok to="delete_preprocessed"/>
+        <error to="kill"/>
+    </action>
+    <action name="delete_preprocessed">
+        <fs>
+            <delete path="${nameNode}/tmp/preprocess/inbound"/>
+        </fs>
+        <ok to="end"/>
+        <error to="kill"/>
+    </action>
+    <kill name="kill">
+        <message>${wf:errorMessage(wf:lastErrorNode())}</message>
+    </kill>
+    <end name="end"/>
+</workflow-app>
